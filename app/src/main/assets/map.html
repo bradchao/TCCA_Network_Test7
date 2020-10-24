@@ -30,15 +30,19 @@
       function initMap() {
         map = new google.maps.Map(document.getElementById("map"), {
           center: {
-            lat: -34.397,
-            lng: 150.644,
+            lat: 24.171204,
+            lng: 120.692364,
           },
-          zoom: 8,
+          zoom: 17,
         });
+      }
+      function gotoWhere(newlat, newlng){
+        map.setCenter({lat: newlat, lng:newlng});
       }
     </script>
 </head>
 <body>
+<input type="button" onclick="gotoWhere(21.945555,120.797520)" value="go" />
 <div id="map"></div>
 </body>
 </html>
