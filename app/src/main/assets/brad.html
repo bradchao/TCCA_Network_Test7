@@ -1,10 +1,8 @@
 <script>
-    function test1(){
+    function test1(n){
         var here = document.getElementById("here");
-        here.innerHTML = parseInt(Math.random()*49+1);
+        here.innerHTML = parseInt(Math.random()*n+1);
     }
 </script>
-<!--
-<input type="button" onclick="test1()" value="test1" />
--->
+<input type="button" onclick="test1(100)" value="test1" />
 <div id="here"></div>
