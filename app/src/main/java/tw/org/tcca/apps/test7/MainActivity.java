@@ -29,7 +29,7 @@ public class MainActivity extends AppCompatActivity {
         settings.setSupportZoom(true);
         settings.setBuiltInZoomControls(true);
 
-        webView.loadUrl("file:///android_asset/brad.html");
+        webView.loadUrl("file:///android_asset/map.html");
     }
 
     public void test1(View view) {
