@@ -33,6 +33,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void test1(View view) {
+        webView.loadUrl("javascript:test1()");
     }
 
     private class MyWebViewClient extends WebViewClient {
