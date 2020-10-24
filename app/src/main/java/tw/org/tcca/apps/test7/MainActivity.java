@@ -1,6 +1,7 @@
 package tw.org.tcca.apps.test7;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
@@ -8,6 +9,7 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
@@ -22,9 +24,13 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.common.api.ResolvableApiException;
+import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsResponse;
+import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.google.android.gms.location.SettingsClient;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -69,16 +75,14 @@ public class MainActivity extends AppCompatActivity {
             finish();
         }
     }
-
+    private Task<LocationSettingsResponse> task;
     private void init(){
         lmgr = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
         LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder();
-
         LocationSettingsRequest locationSettingsRequest = builder.build();
         SettingsClient client = LocationServices.getSettingsClient(this);
-        Task<LocationSettingsResponse> task = client.checkLocationSettings(builder.build());
-
+        task = client.checkLocationSettings(builder.build());
         task.addOnSuccessListener(new OnSuccessListener<LocationSettingsResponse>() {
             @Override
             public void onSuccess(LocationSettingsResponse locationSettingsResponse) {
@@ -86,10 +90,9 @@ public class MainActivity extends AppCompatActivity {
                 Log.v("bradlog", "OK:" + isUsable);
 
                 if (!isUsable){
-                    turnGPSOn();
+                    Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                    startActivity(intent);
                 }
-
-
             }
         }).addOnFailureListener(new OnFailureListener() {
                     @Override
