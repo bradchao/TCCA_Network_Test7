@@ -7,16 +7,28 @@ import androidx.core.content.ContextCompat;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.Settings;
+import android.util.Log;
 import android.view.View;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationSettingsRequest;
+import com.google.android.gms.location.LocationSettingsResponse;
+import com.google.android.gms.location.SettingsClient;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 
 public class MainActivity extends AppCompatActivity {
     private WebView webView;
@@ -61,6 +73,33 @@ public class MainActivity extends AppCompatActivity {
     private void init(){
         lmgr = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
+        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder();
+
+        LocationSettingsRequest locationSettingsRequest = builder.build();
+        SettingsClient client = LocationServices.getSettingsClient(this);
+        Task<LocationSettingsResponse> task = client.checkLocationSettings(builder.build());
+
+        task.addOnSuccessListener(new OnSuccessListener<LocationSettingsResponse>() {
+            @Override
+            public void onSuccess(LocationSettingsResponse locationSettingsResponse) {
+                boolean isUsable = locationSettingsResponse.getLocationSettingsStates().isGpsUsable();
+                Log.v("bradlog", "OK:" + isUsable);
+
+                if (!isUsable){
+                    turnGPSOn();
+                }
+
+
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.v("bradlog", "XX");
+                    }
+                });
+
+
+
         webView = findViewById(R.id.webview);
         initWebView();
     }
@@ -71,7 +110,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         myListener = new MyListener();
-        lmgr.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1*1000, 0, myListener);
+        lmgr.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, myListener);
     }
 
     @Override
@@ -86,7 +125,9 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onLocationChanged(@NonNull Location location) {
-
+            double lat  = location.getLatitude();
+            double lng  = location.getLongitude();
+            Log.v("bradlog", lat + " , " + lng );
         }
 
         @Override
@@ -123,4 +164,25 @@ public class MainActivity extends AppCompatActivity {
     private class MyWebViewClient extends WebViewClient {
 
     }
+
+    private void turnGPSOn(){
+        Log.v("bradlog", "turn on....");
+        String provider = Settings.Secure.getString(getContentResolver(), Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
+
+        if(!provider.contains("gps")){ //if gps is disabled
+            Log.v("bradlog", "disable");
+//            final Intent poke = new Intent();
+//            poke.setClassName("com.android.settings", "com.android.settings.widget.SettingsAppWidgetProvider");
+//            poke.addCategory(Intent.CATEGORY_ALTERNATIVE);
+//            poke.setData(Uri.parse("3"));
+//            sendBroadcast(poke);
+
+//            Intent intent=new Intent("android.location.GPS_ENABLED_CHANGE");
+//            intent.putExtra("enabled", true);
+//            sendBroadcast(intent);
+        }else{
+            Log.v("bradlog", "gps");
+        }
+    }
+
 }
